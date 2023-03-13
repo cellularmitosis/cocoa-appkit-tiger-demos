@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'NSApplicationDelegateDemo' target in the 'NSApplicationDelegateDemo' project
+//
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif
