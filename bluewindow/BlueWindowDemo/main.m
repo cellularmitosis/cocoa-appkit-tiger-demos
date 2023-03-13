@@ -100,7 +100,6 @@
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
 	NSLog(@"%@", NSStringFromSelector(_cmd));
-	// Note: [[NSApplication sharedApplication] keyWindow] is still nil at this point.
 	NSWindow* window = [[NSApplication sharedApplication] keyWindow];
 	if (window == nil) {
 		NSLog(@"window is nil");
