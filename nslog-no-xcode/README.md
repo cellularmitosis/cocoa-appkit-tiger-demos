@@ -1,4 +1,4 @@
-# NSLog demo, without Cocoa
+# NSLog demo, without Xcode 
 
 This is a demo of using NSLog, but without involving Cocoa and Xcode.
 
