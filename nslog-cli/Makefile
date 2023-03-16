@@ -6,7 +6,7 @@ run: build_tiger_g3
 
 build_tiger_g3:
 	cd $(demo) && xcodebuild -configuration Release build SDKROOT="macosx10.4" ARCHS="ppc"
-.PHONY: build
+.PHONY: build_tiger_g3
 
 clean:
 	cd $(demo) && xcodebuild clean
