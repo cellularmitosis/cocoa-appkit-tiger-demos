@@ -1,12 +1,7 @@
-//
-//  main.m
-//  NSURLConnectionDemo
-//
-//  Created by Jason Pepas on 3/15/23.
-//  Copyright __MyCompanyName__ 2023. All rights reserved.
-//
+#import <Foundation/Foundation.h>
 
-#import <Cocoa/Cocoa.h>
+BOOL g_running = YES;
+int g_exitStatus = 0;
 
 @interface URLDelegate: NSObject
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error;
@@ -18,22 +13,24 @@
 @implementation URLDelegate
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
-    NSLog(@"Response: %@", response);
+    NSLog(@"didReceiveResponse: %@", response);
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-	NSLog(@"Data: %u bytes:", [data length]);
 	NSString* string = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
-	[string autorelease];
-	NSLog(@"%@", string);
+	NSLog(@"didReceiveData: %u bytes:\n%@", [data length], string);
+	[string release];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
-    NSLog(@"Error: %@", error);
+    NSLog(@"didFailWithError: %@", error);
+	g_exitStatus = 1;
+	g_running = NO;
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    NSLog(@"DidFinish");
+    NSLog(@"connectionDidFinishLoading");
+	g_running = NO;
 }
 
 @end
@@ -41,13 +38,15 @@
 int main(int argc, char *argv[]) {
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 	
-    NSURL* url = [NSURL URLWithString:@"http://leopard.sh"];
+    NSURL* url = [NSURL URLWithString:@"http://leopard.sh/README.txt"];
     NSURLRequest* request = [NSURLRequest requestWithURL:url];
-
+	
 	URLDelegate* delegate = [[URLDelegate alloc] init];
     [NSURLConnection connectionWithRequest:request delegate:delegate];
-
-	int ret = NSApplicationMain(argc, (const char**)argv);
+	
+	while (g_running) {
+		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+	}
     [pool release];
-    return ret;
+    return g_exitStatus;
 }

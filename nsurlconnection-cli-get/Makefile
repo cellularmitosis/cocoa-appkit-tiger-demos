@@ -1,7 +1,7 @@
 demo=NSURLConnectionDemo
 
 run: build_tiger_g3
-	open $(demo)/build/Release/$(demo).app
+	./$(demo)/build/Release/$(demo)
 .PHONY: run
 
 build_tiger_g3:
