@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
 	NSString* urlString = @"http://leopard.sh/README.txt";
     if (argc > 1) {
     	urlString = [NSString stringWithCString:argv[1]
-								 encoding:NSASCIIStringEncoding];
+                                       encoding:NSASCIIStringEncoding];
     }
     NSURL* url = [NSURL URLWithString:urlString];
     NSURLRequest* request = [NSURLRequest requestWithURL:url];
@@ -17,8 +17,8 @@ int main(int argc, char** argv) {
     NSURLResponse* response = nil;
     NSError* error = nil;
     NSData* data = [NSURLConnection sendSynchronousRequest:request
-										 returningResponse:&response
-													 error:&error];
+                                         returningResponse:&response
+                                                     error:&error];
 
     int exitStatus = 0;
     if (error != nil) {
@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
         exitStatus = 1;
     } else if (data != nil) {
         NSString* string = [[NSString alloc] initWithData:data
-												 encoding:NSASCIIStringEncoding];
+                                                 encoding:NSASCIIStringEncoding];
         printf([string UTF8String]);
         [string release];
     }
