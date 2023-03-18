@@ -17,19 +17,20 @@ int g_exitStatus = 0;
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-	NSString* string = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
+	NSString* string = [[NSString alloc] initWithData:data
+											 encoding:NSASCIIStringEncoding];
 	NSLog(@"didReceiveData: %u bytes:\n%@", [data length], string);
 	[string release];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
-    NSLog(@"didFailWithError: %@", error);
+	NSLog(@"didFailWithError: %@", error);
 	g_exitStatus = 1;
 	g_running = NO;
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    NSLog(@"connectionDidFinishLoading");
+	NSLog(@"connectionDidFinishLoading");
 	g_running = NO;
 }
 
@@ -38,14 +39,20 @@ int g_exitStatus = 0;
 int main(int argc, char *argv[]) {
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 	
-    NSURL* url = [NSURL URLWithString:@"http://leopard.sh/README.txt"];
+	NSString* urlString = @"http://leopard.sh/README.txt";
+    if (argc > 1) {
+    	urlString = [NSString stringWithCString:argv[1]
+									   encoding:NSASCIIStringEncoding];
+    }
+    NSURL* url = [NSURL URLWithString:urlString];
     NSURLRequest* request = [NSURLRequest requestWithURL:url];
 	
 	URLDelegate* delegate = [[URLDelegate alloc] init];
     [NSURLConnection connectionWithRequest:request delegate:delegate];
 	
 	while (g_running) {
-		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+								 beforeDate:[NSDate distantFuture]];
 	}
     [pool release];
     return g_exitStatus;
