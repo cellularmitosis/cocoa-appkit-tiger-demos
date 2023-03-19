@@ -34,12 +34,11 @@
 }
 @end
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 	AppDelegate* delegate = [[AppDelegate alloc] init];
 	[[NSApplication sharedApplication] setDelegate:delegate];
-    int ret = NSApplicationMain(argc,  (const char **) argv);
+    int exitStatus = NSApplicationMain(argc, (const char **)argv);
 	[pool release];
-	return ret;
+	return exitStatus;
 }
