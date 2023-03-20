@@ -26,7 +26,7 @@
 @implementation AppDelegate
 - (void)applicationWillBecomeActive:(NSNotification *)aNotification {
 	NSLog(@"%@", NSStringFromSelector(_cmd));
-	NSWindow* window = [[NSApplication sharedApplication] keyWindow];
+    NSWindow* window = [[[NSApplication sharedApplication] windows] objectAtIndex:0];
 	if ([[window contentView] isKindOfClass:[BlueView class]] == NO) {
 		NSView* blueView = [[[BlueView alloc] init] autorelease];
 		[window setContentView:blueView];

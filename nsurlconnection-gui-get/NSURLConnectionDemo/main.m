@@ -174,7 +174,7 @@
 
 @implementation AppDelegate
 - (void)applicationWillBecomeActive:(NSNotification *)aNotification {
-	NSWindow* window = [[NSApplication sharedApplication] keyWindow];
+    NSWindow* window = [[[NSApplication sharedApplication] windows] objectAtIndex:0];
 	if ([[window contentView] isKindOfClass:[MainView class]] == NO) {
 		NSView* mainView = [[MainView alloc] initWithFrame:[window frame]];
 		[window setContentView:mainView];
