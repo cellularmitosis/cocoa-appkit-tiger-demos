@@ -22,65 +22,112 @@ NSRect Bounds(NSRect rect) {
 }
 
 enum {
-    VLayoutAnchorTop=100,
-    VLayoutAnchorCenter,
-    VLayoutAnchorBottom,
+    YAnchorTop=100,
+    YAnchorCenter,
+    YAnchorBottom,
 };
-typedef int VLayoutAnchor;
+typedef int YAnchor;
 
 enum {
-    HLayoutAnchorLeft=200,
-    HLayoutAnchorCenter,
-    HLayoutAnchorRight,
+    XAnchorLeft=200,
+    XAnchorCenter,
+    XAnchorRight,
 };
-typedef int HLayoutAnchor;
+typedef int XAnchor;
 
 @interface NSView (Layout)
-- (void)vAlign:(VLayoutAnchor)anchor to:(VLayoutAnchor)otherAnchor of:(NSView*)otherView margin:(float)margin;
-- (void)hAlign:(HLayoutAnchor)anchor to:(HLayoutAnchor)otherAnchor of:(NSView*)otherView margin:(float)margin;
+- (void)yAlign:(YAnchor)anchor to:(YAnchor)otherAnchor of:(NSView*)otherView margin:(float)margin;
+- (void)xAlign:(XAnchor)anchor to:(XAnchor)otherAnchor of:(NSView*)otherView margin:(float)margin;
+- (void)yStretch:(YAnchor)anchor to:(YAnchor)otherAnchor of:(NSView*)otherView margin:(float)margin;
+- (void)xStretch:(XAnchor)anchor to:(XAnchor)otherAnchor of:(NSView*)otherView margin:(float)margin;
 @end
 
 @implementation NSView (Layout)
 
-- (void)vAlign:(VLayoutAnchor)anchor to:(VLayoutAnchor)otherAnchor of:(NSView*)otherView margin:(float)margin {
+- (void)yAlign:(YAnchor)anchor to:(YAnchor)otherAnchor of:(NSView*)otherView margin:(float)margin {
     NSPoint relativeOffset = [[self superview] convertPoint:PointZero fromView:otherView];
     float newY = 0 + relativeOffset.y;
-    if (anchor == VLayoutAnchorBottom) {
+    if (anchor == YAnchorBottom) {
         newY += margin;
-    } else if (anchor == VLayoutAnchorTop) {
-        newY -= margin;
+    } else if (anchor == YAnchorTop) {
         newY -= [self bounds].size.height;
-    } else if (anchor == VLayoutAnchorCenter) {
         newY -= margin;
+    } else if (anchor == YAnchorCenter) {
         newY -= [self bounds].size.height / 2;
+        newY -= margin;
     }
-    if (otherAnchor == VLayoutAnchorTop) {
+    if (otherAnchor == YAnchorTop) {
         newY += [otherView bounds].size.height;
-    } else if (otherAnchor == VLayoutAnchorCenter) {
+    } else if (otherAnchor == YAnchorCenter) {
         newY += [otherView bounds].size.height / 2;
     }
     [self setFrameOrigin:NSMakePoint([self frame].origin.x, newY)];
 }
 
-- (void)hAlign:(HLayoutAnchor)anchor to:(HLayoutAnchor)otherAnchor of:(NSView*)otherView margin:(float)margin {
+- (void)xAlign:(XAnchor)anchor to:(XAnchor)otherAnchor of:(NSView*)otherView margin:(float)margin {
     NSPoint relativeOffset = [[self superview] convertPoint:PointZero fromView:otherView];
     float newX = 0 + relativeOffset.x;
-    if (anchor == HLayoutAnchorLeft) {
+    if (anchor == XAnchorLeft) {
         newX += margin;
-    } else if (anchor == HLayoutAnchorRight) {
-        newX -= margin;
+    } else if (anchor == XAnchorRight) {
         newX -= [self bounds].size.width;
-    } else if (anchor == HLayoutAnchorCenter) {
         newX -= margin;
+    } else if (anchor == XAnchorCenter) {
         newX -= [self bounds].size.width / 2;
+        newX -= margin;
     }
-    if (otherAnchor == HLayoutAnchorRight) {
+    if (otherAnchor == XAnchorRight) {
         newX += [otherView bounds].size.width;
-    } else if (otherAnchor == HLayoutAnchorCenter) {
+    } else if (otherAnchor == XAnchorCenter) {
         newX += [otherView bounds].size.width / 2;
     }
-    NSLog(@"relativeOffset.x: %f, newX: %f", relativeOffset.x, newX);
     [self setFrameOrigin:NSMakePoint(newX, [self frame].origin.y)];
+}
+
+- (void)yStretch:(YAnchor)anchor to:(YAnchor)otherAnchor of:(NSView*)otherView margin:(float)margin {
+    if (anchor == YAnchorBottom) {
+        float oldY = [self frame].origin.y;
+        [self yAlign:anchor to:otherAnchor of:otherView margin:margin];
+        float newY = [self frame].origin.y;
+        float deltaHeight = oldY - newY;
+        float newHeight = [self bounds].size.height + deltaHeight;
+        [self setFrameSize:NSMakeSize([self bounds].size.width, newHeight)];
+    } else if (anchor == YAnchorCenter) {
+        [[NSException exceptionWithName:@"NotImplemented" reason:@"yStretch using YAnchorCenter has not been implemented" userInfo:nil] raise];
+    } else if (anchor == YAnchorTop) {
+        NSPoint relativeOffset = [self convertPoint:PointZero fromView:otherView];
+        float newHeight = relativeOffset.y;
+        newHeight -= margin;
+        if (otherAnchor == YAnchorTop) {
+            newHeight += [otherView bounds].size.height;
+        } else if (otherAnchor == YAnchorCenter) {
+            newHeight += [otherView bounds].size.height / 2;
+        }
+        [self setFrameSize:NSMakeSize([self bounds].size.width, newHeight)];
+    }
+}
+
+- (void)xStretch:(XAnchor)anchor to:(XAnchor)otherAnchor of:(NSView*)otherView margin:(float)margin {
+    if (anchor == XAnchorLeft) {
+        float oldX = [self frame].origin.x;
+        [self xAlign:anchor to:otherAnchor of:otherView margin:margin];
+        float newX = [self frame].origin.x;
+        float deltaWidth = oldX - newX;
+        float newWidth = [self bounds].size.width + deltaWidth;
+        [self setFrameSize:NSMakeSize(newWidth, [self bounds].size.height)];
+    } else if (anchor == XAnchorCenter) {
+        [[NSException exceptionWithName:@"NotImplemented" reason:@"xStretch using XAnchorCenter has not been implemented" userInfo:nil] raise];
+    } else if (anchor == XAnchorRight) {
+        NSPoint relativeOffset = [self convertPoint:PointZero fromView:otherView];
+        float newWidth = relativeOffset.x;
+        newWidth -= margin;
+        if (otherAnchor == XAnchorRight) {
+            newWidth += [otherView bounds].size.width;
+        } else if (otherAnchor == XAnchorCenter) {
+            newWidth += [otherView bounds].size.width / 2;
+        }
+        [self setFrameSize:NSMakeSize(newWidth, [self bounds].size.height)];
+    }
 }
 
 @end
@@ -161,7 +208,7 @@ typedef int HLayoutAnchor;
 
 @implementation MainView
 - (id)initWithFrame:(NSRect)frame {
-    NSLog(@"%@", NSStringFromSelector(_cmd));
+    NSLog(@"%@, frame: %@", NSStringFromSelector(_cmd), NSStringFromRect(frame));
     self = [super initWithFrame:frame];
     if (self == nil) {
         return nil;
@@ -172,7 +219,7 @@ typedef int HLayoutAnchor;
     [self addSubview:_blueView];
     [_blueView setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
     
-    NSRect greenFrame = NSInsetRect(Bounds(frame), 16, 16);
+    NSRect greenFrame = NSInsetRect(Bounds(frame), 64, 64);
     _greenView = [[ColorView alloc] initWithFrame:greenFrame];
     [_greenView setColor:[NSColor greenColor]];
     [self addSubview:_greenView];
@@ -181,40 +228,57 @@ typedef int HLayoutAnchor;
     _redView = [[ColorView alloc] initWithFrame:NSMakeRect(0,0,16,16)];
     [_redView setColor:[NSColor redColor]];
     [self addSubview:_redView];
-    [_redView vAlign:VLayoutAnchorBottom to:VLayoutAnchorBottom of:self margin:0];
-    [_redView vAlign:VLayoutAnchorBottom to:VLayoutAnchorBottom of:self margin:0];
-    [_redView vAlign:VLayoutAnchorBottom to:VLayoutAnchorBottom of:self margin:16];
-    [_redView vAlign:VLayoutAnchorBottom to:VLayoutAnchorBottom of:self margin:16];
-    [_redView vAlign:VLayoutAnchorTop to:VLayoutAnchorTop of:self margin:0];
-    [_redView vAlign:VLayoutAnchorTop to:VLayoutAnchorTop of:self margin:0];
-    [_redView vAlign:VLayoutAnchorTop to:VLayoutAnchorTop of:self margin:16];
-    [_redView vAlign:VLayoutAnchorTop to:VLayoutAnchorTop of:self margin:16];
-    [_redView vAlign:VLayoutAnchorCenter to:VLayoutAnchorCenter of:self margin:0];
-    [_redView vAlign:VLayoutAnchorCenter to:VLayoutAnchorCenter of:self margin:0];
-    [_redView vAlign:VLayoutAnchorBottom to:VLayoutAnchorBottom of:_greenView margin:0];
-    [_redView vAlign:VLayoutAnchorTop to:VLayoutAnchorTop of:_greenView margin:0];
-    [_redView vAlign:VLayoutAnchorTop to:VLayoutAnchorBottom of:_greenView margin:0];
-    [_redView vAlign:VLayoutAnchorBottom to:VLayoutAnchorTop of:_greenView margin:0];
-    [_redView vAlign:VLayoutAnchorCenter to:VLayoutAnchorTop of:_greenView margin:0];
-    [_redView vAlign:VLayoutAnchorCenter to:VLayoutAnchorBottom of:_greenView margin:0];
+
+    [_redView yAlign:YAnchorCenter to:YAnchorCenter of:self margin:0];
+    [_redView xAlign:XAnchorCenter to:XAnchorCenter of:self margin:0];
+//    [_redView xAlign:XAnchorLeft to:XAnchorLeft of:self margin:0];
+//    [_redView xAlign:XAnchorLeft to:XAnchorLeft of:_greenView margin:0];
+//    [_redView xStretch:XAnchorRight to:XAnchorRight of:self margin:0];
+//    [_redView xStretch:XAnchorRight to:XAnchorRight of:_greenView margin:0];
+//    [_redView xStretch:XAnchorRight to:XAnchorLeft of:_greenView margin:0];
+    [_redView xStretch:XAnchorLeft to:XAnchorLeft of:self margin:16];
+    [_redView xStretch:XAnchorRight to:XAnchorLeft of:_greenView margin:16];
+    [_redView yStretch:YAnchorTop to:YAnchorTop of:_greenView margin:16];
+    [_redView yStretch:YAnchorBottom to:YAnchorBottom of:_greenView margin:16];
+
+    
+//    [_redView yAlign:YAnchorBottom to:YAnchorBottom of:self margin:32];
+//    [_redView setFrameSize:NSMakeSize(64, 64)];
+//    [_redView yStretch:YAnchorTop to:YAnchorTop of:self margin:32];
+//    [_redView yStretch:YAnchorTop to:YAnchorTop of:_blueView margin:32];
+//    [_redView yStretch:YAnchorTop to:YAnchorTop of:_greenView margin:0];
+//    [_redView yStretch:YAnchorTop to:YAnchorTop of:self margin:0];
+
+//    [_redView yAlign:YAnchorBottom to:YAnchorBottom of:_greenView margin:0];
+//    [_redView yStretch:YAnchorTop to:YAnchorTop of:_greenView margin:0];
+//    [_redView yAlign:YAnchorBottom to:YAnchorBottom of:self margin:16];
+//    [_redView yAlign:YAnchorTop to:YAnchorTop of:self margin:0];
+//    [_redView yAlign:YAnchorTop to:YAnchorTop of:self margin:16];
+//    [_redView yAlign:YAnchorCenter to:YAnchorCenter of:self margin:0];
+//    [_redView yAlign:YAnchorBottom to:YAnchorBottom of:_greenView margin:0];
+//    [_redView yAlign:YAnchorTop to:YAnchorTop of:_greenView margin:0];
+//    [_redView yAlign:YAnchorTop to:YAnchorBottom of:_greenView margin:0];
+//    [_redView yAlign:YAnchorBottom to:YAnchorTop of:_greenView margin:0];
+//    [_redView yAlign:YAnchorCenter to:YAnchorTop of:_greenView margin:0];
+//    [_redView yAlign:YAnchorCenter to:YAnchorBottom of:_greenView margin:0];
     
     _fieldLabel = [[Label alloc] initWithString:@"URL:"];
     [self addSubview:_fieldLabel];
-    [_fieldLabel vAlign:VLayoutAnchorTop to:VLayoutAnchorTop of:[_fieldLabel superview] margin:16];
-    [_fieldLabel hAlign:HLayoutAnchorLeft to:HLayoutAnchorLeft of:[_fieldLabel superview] margin:16];
+    [_fieldLabel yAlign:YAnchorTop to:YAnchorTop of:[_fieldLabel superview] margin:16];
+    [_fieldLabel xAlign:XAnchorLeft to:XAnchorLeft of:[_fieldLabel superview] margin:16];
     [_fieldLabel setAutoresizingMask:ViewBottomMargin];
 
     _fieldLabel2 = [[Label alloc] initWithString:@"URL2:"];
     [_greenView addSubview:_fieldLabel2];
-    [_fieldLabel2 vAlign:VLayoutAnchorTop to:VLayoutAnchorTop of:[_fieldLabel2 superview] margin:32];
-    [_fieldLabel2 hAlign:HLayoutAnchorLeft to:HLayoutAnchorLeft of:[_fieldLabel2 superview] margin:0];
+    [_fieldLabel2 yAlign:YAnchorTop to:YAnchorTop of:[_fieldLabel2 superview] margin:32];
+    [_fieldLabel2 xAlign:XAnchorLeft to:XAnchorLeft of:[_fieldLabel2 superview] margin:0];
     [_fieldLabel2 setAutoresizingMask:ViewBottomMargin];
     
     _urlField = [[NSTextField alloc] initWithFrame:RectZero];
     [_urlField sizeToFit];
     [self addSubview:_urlField];
-    [_urlField vAlign:VLayoutAnchorTop to:VLayoutAnchorTop of:[_urlField superview] margin:16];
-    [_urlField hAlign:HLayoutAnchorLeft to:HLayoutAnchorRight of:_fieldLabel margin:16];
+    [_urlField yAlign:YAnchorTop to:YAnchorTop of:[_urlField superview] margin:16];
+    [_urlField xAlign:XAnchorLeft to:XAnchorRight of:_fieldLabel margin:16];
     [_urlField setAutoresizingMask:ViewBottomMargin|NSViewWidthSizable];
 
     return self;
