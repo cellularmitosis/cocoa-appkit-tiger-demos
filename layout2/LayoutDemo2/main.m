@@ -8,7 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-
 #define ViewLeftMargin (NSViewMinXMargin)
 #define ViewRightMargin (NSViewMaxXMargin)
 #define ViewBottomMargin (NSViewMinYMargin)
@@ -133,29 +132,6 @@ typedef int XAnchor;
 @end
 
 
-// MARK: - Label
-
-@interface Label: NSTextField
-- (id)initWithString:(NSString*)string;
-@end
-
-@implementation Label
-- (id)initWithString:(NSString*)string {
-    self = [super initWithFrame:RectZero];
-    if (self == nil) {
-        return nil;
-    }
-    [self setEditable:NO];
-    [self setSelectable:NO];
-    [self setBezeled:NO];
-    [self setDrawsBackground:NO];
-    [self setStringValue:string];
-    [self sizeToFit];
-    return self;
-}
-@end
-
-
 // MARK: - ColorView
 
 @interface ColorView: NSView {
@@ -197,12 +173,17 @@ typedef int XAnchor;
 // MARK: - MainView
 
 @interface MainView: NSView {
-    Label* _fieldLabel;
-    Label* _fieldLabel2;
-    NSTextField* _urlField;
     ColorView* _blueView;
     ColorView* _greenView;
-    ColorView* _redView;
+    ColorView* _ulView; // upper-left
+    ColorView* _clView; // center-left
+    ColorView* _llView; // lower-left
+    ColorView* _ucView; // upper-center
+    ColorView* _ccView; // center-center
+    ColorView* _lcView; // lower-center
+    ColorView* _urView; // upper-right
+    ColorView* _crView; // center-right
+    ColorView* _lrView; // lower-right
 }
 @end
 
@@ -219,67 +200,80 @@ typedef int XAnchor;
     [self addSubview:_blueView];
     [_blueView setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
     
-    NSRect greenFrame = NSInsetRect(Bounds(frame), 64, 64);
+    NSRect greenFrame = NSInsetRect(Bounds(frame), 32, 32);
     _greenView = [[ColorView alloc] initWithFrame:greenFrame];
     [_greenView setColor:[NSColor greenColor]];
     [self addSubview:_greenView];
     [_greenView setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
 
-    _redView = [[ColorView alloc] initWithFrame:NSMakeRect(0,0,16,16)];
-    [_redView setColor:[NSColor redColor]];
-    [self addSubview:_redView];
+    _ulView = [[ColorView alloc] initWithFrame:NSMakeRect(0, 0, 32, 32)];
+    [_ulView setColor:[NSColor redColor]];
+    [self addSubview:_ulView];
+    [_ulView yAlign:YAnchorTop to:YAnchorTop of:_greenView margin:16];
+    [_ulView xAlign:XAnchorLeft to:XAnchorLeft of:_greenView margin:16];
+    [_ulView setAutoresizingMask:ViewBottomMargin];
 
-    [_redView yAlign:YAnchorCenter to:YAnchorCenter of:self margin:0];
-    [_redView xAlign:XAnchorCenter to:XAnchorCenter of:self margin:0];
-//    [_redView xAlign:XAnchorLeft to:XAnchorLeft of:self margin:0];
-//    [_redView xAlign:XAnchorLeft to:XAnchorLeft of:_greenView margin:0];
-//    [_redView xStretch:XAnchorRight to:XAnchorRight of:self margin:0];
-//    [_redView xStretch:XAnchorRight to:XAnchorRight of:_greenView margin:0];
-//    [_redView xStretch:XAnchorRight to:XAnchorLeft of:_greenView margin:0];
-    [_redView xStretch:XAnchorLeft to:XAnchorLeft of:self margin:16];
-    [_redView xStretch:XAnchorRight to:XAnchorLeft of:_greenView margin:16];
-    [_redView yStretch:YAnchorTop to:YAnchorTop of:_greenView margin:16];
-    [_redView yStretch:YAnchorBottom to:YAnchorBottom of:_greenView margin:16];
-
+    _urView = [[ColorView alloc] initWithFrame:NSMakeRect(0, 0, 32, 32)];
+    [_urView setColor:[NSColor redColor]];
+    [self addSubview:_urView];
+    [_urView yAlign:YAnchorTop to:YAnchorTop of:_greenView margin:16];
+    [_urView xAlign:XAnchorRight to:XAnchorRight of:_greenView margin:16];
+    [_urView setAutoresizingMask:ViewBottomMargin|ViewLeftMargin];
     
-//    [_redView yAlign:YAnchorBottom to:YAnchorBottom of:self margin:32];
-//    [_redView setFrameSize:NSMakeSize(64, 64)];
-//    [_redView yStretch:YAnchorTop to:YAnchorTop of:self margin:32];
-//    [_redView yStretch:YAnchorTop to:YAnchorTop of:_blueView margin:32];
-//    [_redView yStretch:YAnchorTop to:YAnchorTop of:_greenView margin:0];
-//    [_redView yStretch:YAnchorTop to:YAnchorTop of:self margin:0];
+    _llView = [[ColorView alloc] initWithFrame:NSMakeRect(0, 0, 32, 32)];
+    [_llView setColor:[NSColor redColor]];
+    [self addSubview:_llView];
+    [_llView yAlign:YAnchorBottom to:YAnchorBottom of:_greenView margin:16];
+    [_llView xAlign:XAnchorLeft to:XAnchorLeft of:_greenView margin:16];
+    [_llView setAutoresizingMask:ViewTopMargin];
 
-//    [_redView yAlign:YAnchorBottom to:YAnchorBottom of:_greenView margin:0];
-//    [_redView yStretch:YAnchorTop to:YAnchorTop of:_greenView margin:0];
-//    [_redView yAlign:YAnchorBottom to:YAnchorBottom of:self margin:16];
-//    [_redView yAlign:YAnchorTop to:YAnchorTop of:self margin:0];
-//    [_redView yAlign:YAnchorTop to:YAnchorTop of:self margin:16];
-//    [_redView yAlign:YAnchorCenter to:YAnchorCenter of:self margin:0];
-//    [_redView yAlign:YAnchorBottom to:YAnchorBottom of:_greenView margin:0];
-//    [_redView yAlign:YAnchorTop to:YAnchorTop of:_greenView margin:0];
-//    [_redView yAlign:YAnchorTop to:YAnchorBottom of:_greenView margin:0];
-//    [_redView yAlign:YAnchorBottom to:YAnchorTop of:_greenView margin:0];
-//    [_redView yAlign:YAnchorCenter to:YAnchorTop of:_greenView margin:0];
-//    [_redView yAlign:YAnchorCenter to:YAnchorBottom of:_greenView margin:0];
+    _lrView = [[ColorView alloc] initWithFrame:NSMakeRect(0, 0, 32, 32)];
+    [_lrView setColor:[NSColor redColor]];
+    [self addSubview:_lrView];
+    [_lrView yAlign:YAnchorBottom to:YAnchorBottom of:_greenView margin:16];
+    [_lrView xAlign:XAnchorRight to:XAnchorRight of:_greenView margin:16];
+    [_lrView setAutoresizingMask:ViewTopMargin|ViewLeftMargin];
     
-    _fieldLabel = [[Label alloc] initWithString:@"URL:"];
-    [self addSubview:_fieldLabel];
-    [_fieldLabel yAlign:YAnchorTop to:YAnchorTop of:[_fieldLabel superview] margin:16];
-    [_fieldLabel xAlign:XAnchorLeft to:XAnchorLeft of:[_fieldLabel superview] margin:16];
-    [_fieldLabel setAutoresizingMask:ViewBottomMargin];
+    _clView = [[ColorView alloc] initWithFrame:NSMakeRect(0, 0, 32, 32)];
+    [_clView setColor:[NSColor yellowColor]];
+    [self addSubview:_clView];
+    [_clView yAlign:YAnchorTop to:YAnchorBottom of:_ulView margin:16];
+    [_clView yStretch:YAnchorBottom to:YAnchorTop of:_llView margin:16];
+    [_clView xAlign:XAnchorLeft to:XAnchorLeft of:_greenView margin:16];
+    [_clView setAutoresizingMask:NSViewHeightSizable];
 
-    _fieldLabel2 = [[Label alloc] initWithString:@"URL2:"];
-    [_greenView addSubview:_fieldLabel2];
-    [_fieldLabel2 yAlign:YAnchorTop to:YAnchorTop of:[_fieldLabel2 superview] margin:32];
-    [_fieldLabel2 xAlign:XAnchorLeft to:XAnchorLeft of:[_fieldLabel2 superview] margin:0];
-    [_fieldLabel2 setAutoresizingMask:ViewBottomMargin];
+    _crView = [[ColorView alloc] initWithFrame:NSMakeRect(0, 0, 32, 32)];
+    [_crView setColor:[NSColor yellowColor]];
+    [self addSubview:_crView];
+    [_crView yAlign:YAnchorTop to:YAnchorBottom of:_urView margin:16];
+    [_crView yStretch:YAnchorBottom to:YAnchorTop of:_lrView margin:16];
+    [_crView xAlign:XAnchorRight to:XAnchorRight of:_greenView margin:16];
+    [_crView setAutoresizingMask:NSViewHeightSizable|ViewLeftMargin];
     
-    _urlField = [[NSTextField alloc] initWithFrame:RectZero];
-    [_urlField sizeToFit];
-    [self addSubview:_urlField];
-    [_urlField yAlign:YAnchorTop to:YAnchorTop of:[_urlField superview] margin:16];
-    [_urlField xAlign:XAnchorLeft to:XAnchorRight of:_fieldLabel margin:16];
-    [_urlField setAutoresizingMask:ViewBottomMargin|NSViewWidthSizable];
+    _ucView = [[ColorView alloc] initWithFrame:NSMakeRect(0, 0, 32, 32)];
+    [_ucView setColor:[NSColor cyanColor]];
+    [self addSubview:_ucView];
+    [_ucView yAlign:YAnchorTop to:YAnchorTop of:_greenView margin:16];
+    [_ucView xAlign:XAnchorLeft to:XAnchorRight of:_ulView margin:16];
+    [_ucView xStretch:XAnchorRight to:XAnchorLeft of:_urView margin:16];
+    [_ucView setAutoresizingMask:ViewBottomMargin|NSViewWidthSizable];
+
+    _lcView = [[ColorView alloc] initWithFrame:NSMakeRect(0, 0, 32, 32)];
+    [_lcView setColor:[NSColor cyanColor]];
+    [self addSubview:_lcView];
+    [_lcView yAlign:YAnchorBottom to:YAnchorBottom of:_greenView margin:16];
+    [_lcView xAlign:XAnchorLeft to:XAnchorRight of:_llView margin:16];
+    [_lcView xStretch:XAnchorRight to:XAnchorLeft of:_lrView margin:16];
+    [_lcView setAutoresizingMask:NSViewWidthSizable];
+
+    _ccView = [[ColorView alloc] initWithFrame:NSMakeRect(0, 0, 32, 32)];
+    [_ccView setColor:[NSColor magentaColor]];
+    [self addSubview:_ccView];
+    [_ccView yAlign:YAnchorTop to:YAnchorBottom of:_ucView margin:16];
+    [_ccView yStretch:YAnchorBottom to:YAnchorTop of:_lcView margin:16];
+    [_ccView xAlign:XAnchorLeft to:XAnchorRight of:_clView margin:16];
+    [_ccView xStretch:XAnchorRight to:XAnchorLeft of:_crView margin:16];
+    [_ccView setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
 
     return self;
 }
